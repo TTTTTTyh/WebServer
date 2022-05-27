@@ -1,0 +1,19 @@
+DEBUG= g++ -std=c++14 -ggdb
+using = -pthread -lmysqlclient
+RELEASE =g++ -std=c++14 -O2
+c_debug=g++ -std=c++14 -c -ggdb
+c_release=g++ -std=c++14 -c -O2
+dirs =$(shell ls ../)
+h_files+= $(foreach n,$(dirs),$(wildcard ../$(n)/*.h))
+cpp_files+=$(foreach n,$(dirs),$(wildcard ../$(n)/*.cpp))
+lib_files+=$(foreach n,$(cpp_files),$(notdir $(subst .cpp,.a,$(n))))
+echo:
+	@echo $(DEBUG) ../main.cpp $(lib_files) -o ../bin/server.out $(using)
+server:$(h_files) $(lib_files) ../main.cpp
+	$(DEBUG) ../main.cpp $(lib_files) -o ../bin/server.out $(using)
+%.a:%.cpp
+	$(c_debug) $<
+	ar rcs $@ $(subst .a,.o,$@)
+clean:
+	rm -f ../bin/*.out
+	rm -f ./*.o ./*.out ./*.a
